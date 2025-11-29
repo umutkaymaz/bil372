@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kullanıcı İlanları</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .user-stats {
+            font-size: 14px;
+            color: #777;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+            display: flex;
+            gap: 24px;
+        }
+
+        .user-sidebar {
+            width: 300px;
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .user-sidebar h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #2196F3;
+            padding-bottom: 10px;
+        }
+
+        .user-detail-item {
+            margin-bottom: 16px;
+        }
+
+        .user-detail-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .user-detail-value {
+            font-size: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .user-detail-value.phone {
+            color: #2196F3;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .listings-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .listing-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+
+        .listing-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-color: #2196F3;
+        }
+
+        .listing-image {
+            width: 140px;
+            height: 140px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .listing-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .listing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .listing-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .listing-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2196F3;
+            white-space: nowrap;
+        }
+
+        .listing-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 8px;
+        }
+
+        .genres {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .genre-tag {
+            background: #e3f2fd;
+            color: #1976D2;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .error {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .error a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+
+        .error a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <a href="test_home_page.html" class="back-btn">Ana Sayfa</a>
+            <div class="user-info">
+                <div class="user-name" id="userName">Yükleniyor...</div>
+                <div class="user-stats" id="userStats"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <aside class="user-sidebar" id="userSidebar">
+            <h3>Kullanıcı Bilgileri</h3>
+            <div class="loading" style="padding: 20px;">Yükleniyor...</div>
+        </aside>
+
+        <main class="main-content">
+            <div id="listingsContainer" class="listings-grid">
+                <div class="loading">İlanlar yükleniyor...</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+
+        // URL'den user ID'sini al
+        function getUserIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // Kullanıcının tüm ilanlarını yükle
+        async function loadUserListings() {
+            const userId = getUserIdFromURL();
+
+            if (!userId) {
+                document.getElementById('listingsContainer').innerHTML = 
+                    '<div class="error">Kullanıcı ID bulunamadı. <a href="test_home_page.html">Ana sayfaya dön</a></div>';
+                return;
+            }
+
+            try {
+                // Tüm ilanları çek ve kullanıcıya ait olanları filtrele
+                const response = await fetch(`${API_BASE}/listings`);
+                const allListings = await response.json();
+                console.log("Fetchleme OK");
+
+                // Kullanıcının ilanlarını filtrele
+                const userListings = allListings.filter(l => l.user_id == userId);
+                console.log("Kullanici ilanlarini fetchleme OK");
+
+                if (userListings.length === 0) {
+                    document.getElementById('listingsContainer').innerHTML = 
+                        '<div class="no-results">Bu kullanıcının henüz ilanı bulunmuyor.</div>';
+                    document.getElementById('userName').textContent = 'Kullanıcı';
+                    document.getElementById('userSidebar').innerHTML = 
+                        '<h3>Kullanıcı Bilgileri</h3><div class="no-results" style="padding: 20px;">Bilgi bulunamadı</div>';
+                    return;
+                }
+
+                // İlk ilandan kullanıcı bilgilerini al
+                let firstListing = userListings[0];
+                const userName = firstListing.user_name || 'Bilinmeyen Kullanıcı';
+                document.getElementById('userName').textContent = userName;
+                document.getElementById('userStats').textContent = `${userListings.length} İlan`;
+                document.title = `${userName} - İlanları`;
+
+                // Her ilanın detaylarını çek
+                const enrichedListings = await Promise.all(
+                    userListings.map(async (listing) => {
+                        try {
+                            const detailResponse = await fetch(`${API_BASE}/listings/${listing.listing_id}`);
+                            const detail = await detailResponse.json();
+                            return { ...listing, ...detail };
+                        } catch {
+                            return listing;
+                        }
+                    })
+                );
+                console.log("Ilan detaylarini cekme OK");
+
+                // İlk ilandan kullanıcı bilgilerini al
+                const userResponse = await fetch(`${API_BASE}/users/${userId}`);
+                console.log("USER ID: ", userId);
+                let userInfo = await userResponse.json();
+
+                console.log("Kullanici verilerini cekme OK");
+                console.log(userInfo)
+                // Kullanıcı bilgilerini sidebar'da göster
+                displayUserInfo(userInfo);
+                console.log("Kullanici verilerini goruntuleme OK");
+                
+
+                displayListings(enrichedListings);
+                console.log("Ilanlari goruntuleme OK");
+            } catch (err) {
+                console.error(err);
+                document.getElementById('listingsContainer').innerHTML = 
+                    '<div class="error">İlanlar yüklenirken hata oluştu. <a href="test_home_page.html">Ana sayfaya dön</a></div>';
+            }
+        }
+
+        // İlanları ekrana bas
+        function displayListings(listings) {
+            const container = document.getElementById('listingsContainer');
+
+            container.innerHTML = listings.map(l => {
+                const imageUrl = l.listing_imagepath;
+                const genres = l.genres || [];
+
+                return `
+                    <a href="test_listing_page.html?id=${l.listing_id}" style="text-decoration: none; color: inherit;">
+                        <div class="listing-card">
+                            <div class="listing-image" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;">
+                                ${imageUrl ? '' : 'Görsel Yok'}
+                            </div>
+
+                            <div class="listing-info">
+                                <div class="listing-header">
+                                    <div>
+                                        <div class="listing-title">${l.listing_name}</div>
+                                    </div>
+                                    <div class="listing-price">${l.listing_price.toFixed(2)} ₺</div>
+                                </div>
+
+                                <div class="listing-meta">
+                                    <span>${l.user_city || "Şehir yok"}</span>
+                                </div>
+                                <div>&nbsp</div>
+                                <div class="genres">
+                                    ${genres.map(g => `<span class="genre-tag">${g}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        // Kullanıcı bilgilerini sidebar'da göster
+        function displayUserInfo(user) {
+            const sidebar = document.getElementById('userSidebar');
+
+            // Adres bilgilerini birleştir
+            let fullAddress = '';
+            if (user.user_city && user.user_restofaddress) {
+                fullAddress = `${user.user_city}, ${user.user_restofaddress}`;
+            } else if (user.user_city) {
+                fullAddress = user.user_city;
+            } else if (user.user_restofaddress) {
+                fullAddress = user.user_restofaddress;
+            } else {
+                fullAddress = 'Belirtilmemiş';
+            }
+
+            sidebar.innerHTML = `
+                <h3>Kullanıcı Bilgileri</h3>
+                
+                <div class="user-detail-item">
+                    <div class="user-detail-label">İsim</div>
+                    <div class="user-detail-value">${user.user_name || 'Bilinmeyen'}</div>
+                </div>
+
+                <div class="user-detail-item">
+                    <div class="user-detail-label">Adres</div>
+                    <div class="user-detail-value">${fullAddress}</div>
+                </div>
+
+                ${user.user_phonenumber ? `
+                <div class="user-detail-item">
+                    <div class="user-detail-label">Telefon</div>
+                    <div class="user-detail-value phone">${user.user_phonenumber}</div>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        // Sayfa yüklendiğinde çalıştır
+        loadUserListings();
+    </script>
+
+</body>
+</html>

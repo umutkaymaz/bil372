@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İlan Listesi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .search-bar {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1600px;
+            margin: 0 auto;
+            gap: 24px;
+            padding: 24px;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .sidebar h3 {
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: #555;
+        }
+
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .price-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .listings-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .listing-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+
+        .listing-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-color: #2196F3;
+        }
+
+        .listing-image {
+            width: 140px;
+            height: 140px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .listing-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .listing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .listing-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .listing-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2196F3;
+            white-space: nowrap;
+        }
+
+        .listing-owner {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .listing-description {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .listing-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #777;
+        }
+
+        .genres {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .genre-tag {
+            background: #e3f2fd;
+            color: #1976D2;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .filter-btn {
+            width: 100%;
+            padding: 10px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: #1976D2;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 8px;
+            background: white;
+            color: #666;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #f5f5f5;
+        }
+
+        /* DETAY SAYFASI STİLLERİ */
+        .detail-page {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .detail-page.active {
+            display: block;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .detail-container {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+
+        .detail-header {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 32px;
+            padding: 32px;
+        }
+
+        .detail-image {
+            width: 100%;
+            height: 400px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .detail-main-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 12px;
+        }
+
+        .detail-price {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2196F3;
+            margin-bottom: 20px;
+        }
+
+        .detail-owner-info {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .detail-owner-info h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .detail-owner-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .detail-owner-city {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 8px;
+        }
+
+        .detail-owner-phone {
+            font-size: 14px;
+            color: #2196F3;
+            font-weight: 500;
+        }
+
+        .detail-description-box {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .detail-description-box h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .detail-description-box p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .detail-genres {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: auto;
+        }
+
+        .detail-genre-tag {
+            background: #e3f2fd;
+            color: #1976D2;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .detail-description {
+            padding: 32px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .detail-description h3 {
+            font-size: 20px;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .detail-description p {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .detail-comments {
+            padding: 32px;
+            border-top: 1px solid #e0e0e0;
+            background: #fafafa;
+        }
+
+        .detail-comments h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .comment-item {
+            background: white;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .comment-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .no-comments {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .detail-header {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-image {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ANA SAYFA -->
+    <div id="listPage">
+        <div class="header">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="İlan ara...">
+            </div>
+        </div>
+
+        <div class="container">
+            <aside class="sidebar">
+                <h3>Filtrele</h3>
+                
+                <div class="filter-group">
+                    <label>Şehir</label>
+                    <input type="text" id="cityFilter" placeholder="Şehir adı">
+                </div>
+
+                <div class="filter-group">
+                    <label>Fiyat Aralığı</label>
+                    <div class="price-inputs">
+                        <input type="number" id="minPrice" placeholder="Min">
+                        <input type="number" id="maxPrice" placeholder="Max">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>Tür</label>
+                    <select id="genreFilter">
+                        <option value="">Tümü</option>
+                    </select>
+                </div>
+
+                <button class="filter-btn" onclick="applyFilters()">Filtrele</button>
+                <button class="reset-btn" onclick="resetFilters()">Sıfırla</button>
+            </aside>
+
+            <main class="main-content">
+                <div id="listingsContainer" class="listings-grid">
+                    <div class="loading">Yükleniyor...</div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- DETAY SAYFASI -->
+    <div id="detailPage" class="detail-page">
+        <button class="back-btn" onclick="goBack()">
+            ← Geri Dön
+        </button>
+        <div id="detailContent" class="detail-container">
+            <div class="loading">Yükleniyor...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+
+        let allListings = [];
+        let allGenres = new Set();
+
+        /* ------------------------------------------------------------------
+        1) VERİLERİ HER ZAMAN TAM DETAYIYLA GETİREN FONKSİYON
+        ------------------------------------------------------------------ */
+        async function enrichListing(listing) {
+            try {
+                const detailResponse = await fetch(`${API_BASE}/listings/${listing.listing_id}`);
+                const detail = await detailResponse.json();
+
+                if (detail.genres) {
+                    detail.genres.forEach(g => allGenres.add(g));
+                }
+
+                return { ...listing, ...detail };
+            } catch {
+                return listing;
+            }
+        }
+
+        /* ------------------------------------------------------------------
+        2) TÜM İLANLARI YÜKLE
+        ------------------------------------------------------------------ */
+        async function fetchListings() {
+            try {
+                const response = await fetch(`${API_BASE}/listings`);
+                const baseListings = await response.json();
+
+                const enriched = await Promise.all(baseListings.map(enrichListing));
+                allListings = enriched;
+
+                populateGenreFilter();
+                displayListings(allListings);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('listingsContainer').innerHTML =
+                    '<div class="no-results">Veriler yüklenirken hata oluştu.</div>';
+            }
+        }
+
+        /* ------------------------------------------------------------------
+        3) GENRE DROPDOWN DOLDUR
+        ------------------------------------------------------------------ */
+        function populateGenreFilter() {
+            const select = document.getElementById('genreFilter');
+            const sorted = Array.from(allGenres).sort();
+
+            sorted.forEach(g => {
+                const op = document.createElement('option');
+                op.value = g;
+                op.textContent = g;
+                select.appendChild(op);
+            });
+        }
+
+        /* ------------------------------------------------------------------
+        4) EKRANA BAS
+        ------------------------------------------------------------------ */
+        function displayListings(listings) {
+            const container = document.getElementById('listingsContainer');
+
+            if (!listings || listings.length === 0) {
+                container.innerHTML = '<div class="no-results">Sonuç bulunamadı.</div>';
+                return;
+            }
+
+            container.innerHTML = listings.map(l => {
+                const imageUrl = l.listing_imagepath;
+                const genres = l.genres || [];
+
+                return `
+                    <div class="listing-card" onclick="showDetail(${l.listing_id})">
+                        <div class="listing-image" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;">
+                            ${imageUrl ? '' : 'Görsel Yok'}
+                        </div>
+
+                        <div class="listing-info">
+                            <div class="listing-header">
+                                <div>
+                                    <div class="listing-title">${l.listing_name}</div>
+                                    <div class="listing-owner">${l.user_name || "Bilinmeyen Kullanıcı"}</div>
+                                </div>
+                                <div class="listing-price">${l.listing_price} ₺</div>
+                            </div>
+
+                            <div class="listing-meta">
+                                <span>${l.user_city || "Şehir yok"}</span>
+                            </div>
+                            <div>&nbsp</div>
+                            <div class="genres">
+                                ${genres.map(g => `<span class="genre-tag">${g}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /* ------------------------------------------------------------------
+        5) DETAY SAYFASINI GÖSTER
+        ------------------------------------------------------------------ */
+        async function showDetail(listingId) {
+            document.getElementById('listPage').style.display = 'none';
+            document.getElementById('detailPage').classList.add('active');
+            document.getElementById('detailContent').innerHTML = '<div class="loading">Yükleniyor...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/listings/${listingId}`);
+                const detail = await response.json();
+
+                const imageUrl = detail.listing_imagepath;
+                const genres = detail.genres || [];
+                const comments = detail.comments || [];
+
+                // Adres bilgilerini birleştir
+                let fullAddress = '';
+                if (detail.user_city && detail.user_restofaddress) {
+                    fullAddress = `${detail.user_city}, ${detail.user_restofaddress}`;
+                } else if (detail.user_city) {
+                    fullAddress = detail.user_city;
+                } else if (detail.user_restofaddress) {
+                    fullAddress = detail.user_restofaddress;
+                } else {
+                    fullAddress = 'Adres belirtilmemiş';
+                }
+
+                const commentsHtml = comments.length > 0 
+                    ? comments.map(c => `
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <span class="comment-author">${c.user_name || 'Anonim'}</span>
+                                <span class="comment-date">${c.comment_date ? new Date(c.comment_date).toLocaleDateString('tr-TR') : ''}</span>
+                            </div>
+                            <div class="comment-text">${c.comment_content || ''}</div>
+                        </div>
+                    `).join('')
+                    : '<div class="no-comments">Henüz yorum yapılmamış.</div>';
+
+                document.getElementById('detailContent').innerHTML = `
+                    <div class="detail-header">
+                        <div class="detail-image" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;">
+                            ${imageUrl ? '' : 'Görsel Yok'}
+                        </div>
+
+                        <div class="detail-main-info">
+                            <div class="detail-title">${detail.listing_name}</div>
+                            <div class="detail-price">${detail.listing_price} ₺</div>
+
+                            <div class="detail-owner-info">
+                                <h4>Satıcı Bilgileri</h4>
+                                <div class="detail-owner-name">${detail.user_name || 'Bilinmeyen Kullanıcı'}</div>
+                                <div class="detail-owner-city">${fullAddress}</div>
+                                ${detail.user_phonenumber ? `<div class="detail-owner-phone">${detail.user_phonenumber}</div>` : ''}
+                            </div>
+
+                            ${detail.listing_desc ? `
+                            <div class="detail-description-box">
+                                <h4>Açıklama</h4>
+                                <p>${detail.listing_desc}</p>
+                            </div>
+                            ` : ''}
+
+                            <div class="detail-genres">
+                                ${genres.map(g => `<span class="detail-genre-tag">${g}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-comments">
+                        <h3>Yorumlar (${comments.length})</h3>
+                        ${commentsHtml}
+                    </div>
+                `;
+
+                window.scrollTo(0, 0);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('detailContent').innerHTML =
+                    '<div class="no-results">İlan detayları yüklenirken hata oluştu.</div>';
+            }
+        }
+
+        /* ------------------------------------------------------------------
+        6) GERİ DÖN
+        ------------------------------------------------------------------ */
+        function goBack() {
+            document.getElementById('detailPage').classList.remove('active');
+            document.getElementById('listPage').style.display = 'block';
+        }
+
+        /* ------------------------------------------------------------------
+        7) FİLTRE UYGULA
+        ------------------------------------------------------------------ */
+        async function applyFilters() {
+            const city = document.getElementById('cityFilter').value;
+            const min = document.getElementById('minPrice').value;
+            const max = document.getElementById('maxPrice').value;
+            const genre = document.getElementById('genreFilter').value;
+
+            const params = new URLSearchParams();
+            if (city) params.append("city", city);
+            if (min) params.append("min_price", min);
+            if (max) params.append("max_price", max);
+            if (genre) params.append("genre", genre);
+
+            try {
+                document.getElementById('listingsContainer').innerHTML =
+                    '<div class="loading">Filtreleniyor...</div>';
+
+                const response = await fetch(`${API_BASE}/filters/listings?${params}`);
+                const baseFiltered = await response.json();
+
+                const enriched = await Promise.all(baseFiltered.map(enrichListing));
+                displayListings(enriched);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('listingsContainer').innerHTML =
+                    '<div class="no-results">Filtreleme sırasında hata oluştu.</div>';
+            }
+        }
+
+        /* ------------------------------------------------------------------
+        8) FİLTRELERİ SIFIRLA
+        ------------------------------------------------------------------ */
+        function resetFilters() {
+            document.getElementById('cityFilter').value = '';
+            document.getElementById('minPrice').value = '';
+            document.getElementById('maxPrice').value = '';
+            document.getElementById('genreFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            displayListings(allListings);
+        }
+
+        /* ------------------------------------------------------------------
+        9) ARAMA
+        ------------------------------------------------------------------ */
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', e => {
+            clearTimeout(searchTimeout);
+
+            searchTimeout = setTimeout(async () => {
+                const keyword = e.target.value.trim();
+
+                if (!keyword) {
+                    displayListings(allListings);
+                    return;
+                }
+
+                try {
+                    document.getElementById('listingsContainer').innerHTML =
+                        '<div class="loading">Aranıyor...</div>';
+
+                    const response = await fetch(`${API_BASE}/search?keyword=${encodeURIComponent(keyword)}`);
+                    const baseResults = await response.json();
+
+                    const enriched = await Promise.all(baseResults.map(enrichListing));
+                    displayListings(enriched);
+                } catch (err) {
+                    console.log(err);
+                    document.getElementById('listingsContainer').innerHTML =
+                        '<div class="no-results">Arama sırasında hata oluştu.</div>';
+                }
+            }, 300);
+        });
+
+        /* ------------------------------------------------------------------
+        10) SAYFA AÇILIŞI
+        ------------------------------------------------------------------ */
+        fetchListings();
+    </script>
+
+</body>
+</html>

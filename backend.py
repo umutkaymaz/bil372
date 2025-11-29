@@ -59,7 +59,7 @@ def get_all_listings():
     with engine.connect() as conn:
         result = conn.execute(text("""
             SELECT 
-                l.*, u.user_name, u.user_city 
+                l.*, u.*
             FROM listings_table l
             JOIN users_table u 
             ON l.listing_ownerid = u.user_id
@@ -74,7 +74,13 @@ def get_all_listings():
 def get_listing(listing_id: int):
     with engine.connect() as conn:
         listing = conn.execute(
-            text("SELECT * FROM listings_table WHERE listing_id = :id"),
+            text("""
+                 SELECT l.*, u.*
+                 FROM listings_table as l
+                 JOIN users_table as u
+                 ON l.listing_ownerid = u.user_id 
+                 WHERE listing_id = :id
+                 """),
             {"id": listing_id}
         ).fetchone()
 
@@ -114,7 +120,7 @@ def search_listings(keyword: str = ""):
     with engine.connect() as conn:
         result = conn.execute(
             text("""
-                SELECT l.*, u.user_name, u.user_city
+                SELECT l.*, u.*
                 FROM listings_table l
                 JOIN users_table u ON l.listing_ownerid = u.user_id
                 WHERE l.listing_name LIKE :key
@@ -168,7 +174,7 @@ def filter_listings(
     genre: str = None
 ):
     query = """
-        SELECT DISTINCT l.*, u.user_name, u.user_city
+        SELECT DISTINCT l.*, u.*
         FROM listings_table l
         JOIN users_table u ON l.listing_ownerid = u.user_id
         LEFT JOIN listing_genres lg ON l.listing_id = lg.listing_id
