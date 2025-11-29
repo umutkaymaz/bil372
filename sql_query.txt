@@ -1,0 +1,144 @@
+drop database buharindan;
+CREATE DATABASE buharindan;
+
+USE buharindan;
+
+CREATE TABLE users_table (
+	user_id varchar(20) PRIMARY KEY,
+	user_name varchar(50) NOT NULL,
+	user_city varchar(20) NOT NULL,
+	user_restofaddress varchar(50) NOT NULL,
+	user_phonenumber char(11) NOT NULL,
+	user_passwordhashes TEXT NOT NULL
+);
+
+CREATE TABLE listings_table (
+    listing_id INT(9) PRIMARY KEY auto_increment,
+    listing_name VARCHAR(200) NOT NULL,
+    listing_price DECIMAL(6,2) NOT NULL,
+    listing_ownerid VARCHAR(20) NOT NULL,
+    listing_condition ENUM('Kusursuz', 'İyi', 'Orta', 'Yıpranmış') NOT NULL,
+    listing_date DATE NOT NULL,
+    listing_desc VARCHAR(200),
+    listing_imagepath text,
+    FOREIGN KEY (listing_ownerid) REFERENCES users_table(user_id)
+);
+
+
+CREATE TABLE comments_table (
+	comment_id int(9) PRIMARY KEY AUTO_INCREMENT,
+	comment_content varchar(200) NOT NULL,
+	comment_date date NOT NULL,
+	comment_ownerid varchar(20) NOT NULL,
+	comment_listingid int(9) NOT NULL,
+	FOREIGN KEY (comment_ownerid) REFERENCES users_table(user_id),
+	FOREIGN KEY (comment_listingid) REFERENCES listings_table(listing_id)
+);
+
+CREATE TABLE genres (
+    genre_id INT AUTO_INCREMENT PRIMARY KEY,
+    genre_name ENUM(
+        'Aksiyon', 'Macera', 'Rol Yapma', 'Strateji',
+        'Simülasyon', 'Spor', 'Bulmaca',
+        'Hayatta Kalma', 'Korku', 'Platform'
+    ) NOT NULL UNIQUE
+);
+
+CREATE TABLE listing_genres (
+    listing_id INT NOT NULL,
+    genre_id INT NOT NULL,
+
+    PRIMARY KEY (listing_id, genre_id),
+
+    FOREIGN KEY (listing_id) REFERENCES listings_table(listing_id),
+    FOREIGN KEY (genre_id) REFERENCES genres(genre_id)
+);
+
+INSERT INTO genres (genre_name) VALUES
+('Aksiyon'),
+('Macera'),
+('Rol Yapma'),
+('Strateji'),
+('Simülasyon'),
+('Spor'),
+('Bulmaca'),
+('Hayatta Kalma'),
+('Korku'),
+('Platform');
+
+INSERT INTO users_table (
+    user_id, user_name, user_city,
+    user_restofaddress, user_phonenumber, user_passwordhashes
+) VALUES
+('u001', 'Ahmet Demir', 'Ankara', 'Çankaya Mah. 123. Sok. No:5', '05301234567', 'hashed_pass_1'),
+('u002', 'Elif Yılmaz', 'İstanbul', 'Kadıköy, Moda Cad. No:10', '05327894563', 'hashed_pass_2'),
+('u003', 'Mehmet Kaya', 'İzmir', 'Bornova, 67. Sok. No:3', '05339876544', 'hashed_pass_3'),
+('u004', 'Zeynep Aydın', 'Bursa', 'Nilüfer, 12. Cad. No:7', '05411239877', 'hashed_pass_4'),
+('u005', 'Can Öztürk', 'Antalya', 'Muratpaşa, Lara Cad. No:8', '05456789122', 'hashed_pass_5'),
+('u006', 'Selin Kurt', 'Eskişehir', 'Odunpazarı, Arifiye Sok. No:14', '05314447896', 'hashed_pass_6'),
+('u007', 'Barış Akın', 'Adana', 'Seyhan, Reşatbey Mah. No:2', '05551239874', 'hashed_pass_7');
+
+INSERT INTO listings_table (
+    listing_name, listing_price, listing_ownerid,
+    listing_condition, listing_date, listing_desc, listing_imagepath
+) VALUES
+('The Witcher 3: Wild Hunt', 249.99, 'u001', 'İyi', '2025-11-01', 'Kutulu, temiz, DLC dahil.', '/images/witcher3.jpg'),
+('FIFA 24', 399.00, 'u002', 'Kusursuz', '2025-10-28', 'Sıfır, hiç açılmadı.', '/images/fifa24.jpg'),
+('Cities: Skylines II', 550.00, 'u003', 'Orta', '2025-09-15', 'Kutu yıpranmış ama disk sağlam.', '/images/cities2.jpg'),
+('Resident Evil 4 Remake', 699.90, 'u004', 'Kusursuz', '2025-10-10', 'Collector’s Edition.', '/images/re4.jpg'),
+('Portal 2', 149.90, 'u005', 'İyi', '2025-11-05', 'Steam key olarak gönderilir.', '/images/portal2.jpg'),
+('GTA V', 199.00, 'u006', 'İyi', '2025-11-07', 'PS4 kutulu sürüm.', '/images/gtav.jpg'),
+('Dark Souls III', 299.50, 'u007', 'Yıpranmış', '2025-11-06', 'Diskte çizikler var.', '/images/ds3.jpg');
+
+UPDATE listings_table SET listing_imagepath = "C:/Users/Mustafa Umut Kaymaz/Pictures/memati.jpg" WHERE listing_id = 1;
+
+INSERT INTO listing_genres VALUES 
+(1, 3), (1, 2), (1, 1),      -- Witcher → RPG + Macera + Aksiyon
+(2, 6),                       -- FIFA → Spor
+(3, 5), (3, 4),               -- Cities Skylines II → Simülasyon + Strateji
+(4, 9), (4, 1), (4, 2),       -- RE4 → Korku + Aksiyon + Macera
+(5, 7), (5, 10),              -- Portal 2 → Bulmaca + Platform
+(6, 1), (6, 2),               -- GTA V → Aksiyon + Macera
+(7, 3), (7, 1), (7, 8);       -- Dark Souls III → RPG + Aksiyon + Hayatta Kalma
+
+INSERT INTO comments_table (
+    comment_content, comment_date, comment_ownerid, comment_listingid
+) VALUES
+('Fiyat gayet iyi, iletişime geçtim.', '2025-11-02', 'u002', 1),
+('Bu oyun hala çok sarıyor.', '2025-11-03', 'u003', 1),
+('Kargo dahil mi?', '2025-11-04', 'u001', 2),
+('Ben PS5 versiyonunu arıyorum.', '2025-11-05', 'u005', 6),
+('Dark Souls için fiyat biraz yüksek gibi.', '2025-11-06', 'u004', 7),
+('Portal 2 coop modu inanılmaz.', '2025-11-07', 'u001', 5),
+('Cities 2 optimizasyonu kötü diyorlar, doğru mu?', '2025-11-08', 'u006', 3);
+
+
+CREATE VIEW user_listing_genre_view AS
+SELECT 
+    u.user_id,
+    u.user_name,
+    u.user_city,
+    l.listing_id,
+    l.listing_name,
+    l.listing_price,
+    l.listing_condition,
+    l.listing_date,
+    g.genre_name
+FROM users_table AS u
+JOIN listings_table AS l 
+    ON u.user_id = l.listing_ownerid
+JOIN listing_genres AS lg 
+    ON l.listing_id = lg.listing_id
+JOIN genres AS g 
+    ON lg.genre_id = g.genre_id;
+
+SELECT * FROM user_listing_genre_view;
+
+SELECT DISTINCT l.*, u.user_name, u.user_city
+        FROM listings_table l
+        JOIN users_table u ON l.listing_ownerid = u.user_id
+        LEFT JOIN listing_genres lg ON l.listing_id = lg.listing_id
+        LEFT JOIN genres g ON lg.genre_id = g.genre_id
+        WHERE 1=1
+
+UPDATE listings_table SET listing_imagepath="file:///C:/Users/Mustafa Umut Kaymaz/Pictures/memati.jpg" WHERE listing_imagepath = "C:/Users/Mustafa Umut Kaymaz/Pictures/memati.jpg";
