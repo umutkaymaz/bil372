@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Buharından - Oyun Pazarı</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: #eee;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .listing {
+            background: #1e1e1e;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+
+        .listing img {
+            max-width: 150px;
+            margin-top: 10px;
+            display: block;
+        }
+
+        .price {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #333;
+            padding: 4px 8px;
+            margin: 3px 3px 3px 0;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 6px 10px;
+            background: #2196f3;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #searchBar {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎮 Buharından</h1>
+
+    <input id="searchBar" placeholder="İlan ara..." oninput="searchListings()">
+
+    <div id="listings"></div>
+</div>
+
+<script>
+const API_URL = "http://127.0.0.1:8000";
+
+async function loadListings() {
+    const res = await fetch(API_URL + "/listings");
+    const listings = await res.json();
+
+    const container = document.getElementById("listings");
+    container.innerHTML = "";
+
+    for (let listing of listings) {
+        const details = await fetch(API_URL + "/listings/" + listing.listing_id);
+        const data = await details.json();
+
+        const div = document.createElement("div");
+        div.className = "listing";
+
+        div.innerHTML = `
+            <h2>${listing.listing_name}</h2>
+            <div class="price">${listing.listing_price} TL</div>
+            <p><b>Satıcı:</b> ${listing.user_name}</p>
+            <p><b>Durum:</b> ${listing.listing_condition}</p>
+            <p>${listing.listing_desc || ""}</p>
+            ${listing.listing_imagepath ? `<img src="${listing.listing_imagepath}">` : ""}
+
+            <h4>Türler:</h4>
+            ${data.genres.map(g => `<span class="tag">${g}</span>`).join("")}
+
+            <h4>Yorumlar:</h4>
+            <ul>
+              ${data.comments.map(c => `<li><b>${c.user_name}:</b> ${c.comment_content}</li>`).join("")}
+            </ul>
+        `;
+
+        container.appendChild(div);
+    }
+}
+
+async function searchListings() {
+    const keyword = document.getElementById("searchBar").value;
+
+    const res = await fetch(API_URL + "/search?keyword=" + keyword);
+    const listings = await res.json();
+
+    const container = document.getElementById("listings");
+    container.innerHTML = "";
+
+    for (let listing of listings) {
+        const div = document.createElement("div");
+        div.className = "listing";
+
+        div.innerHTML = `
+            <h2>${listing.listing_name}</h2>
+            <div class="price">${listing.listing_price} TL</div>
+            <p><b>Durum:</b> ${listing.listing_condition}</p>
+            <p>${listing.listing_desc || ""}</p>
+        `;
+
+        container.appendChild(div);
+    }
+}
+
+loadListings();
+</script>
+
+</body>
+</html>
