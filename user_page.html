@@ -27,6 +27,59 @@
         }
 
         .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2196F3;
+            text-decoration: none;
+        }
+
+        .profile-btn {
+            padding: 8px 16px;
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .profile-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+
+        .header-content {
             max-width: 1600px;
             margin: 0 auto;
             display: flex;
@@ -236,10 +289,13 @@
 <body>
     <div class="header">
         <div class="header-content">
-            <a href="test_home_page.html" class="back-btn">Ana Sayfa</a>
+            <a href="home_page.html" class="logo">Buharından</a>
             <div class="user-info">
-                <div class="user-name" id="userName">Yükleniyor...</div>
-                <div class="user-stats" id="userStats"></div>
+            <div class="user-stats" id="userStats"></div>
+            </div>
+            <div class="header-actions">
+                <button class="profile-btn" onclick="window.location.href='profile_page.html'">Profilim</button>
+                <button class="logout-btn" onclick="handleLogout()">Çıkış Yap</button>
             </div>
         </div>
     </div>
@@ -260,6 +316,47 @@
     <script>
         const API_BASE = 'http://127.0.0.1:8000';
 
+        // ==================== AUTH FUNCTIONS ====================
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_BASE}/me`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+                if (!response.ok) {
+                    window.location.href = 'login_page.html';
+                    return null;
+                }
+
+                const userData = await response.json();
+                return userData;
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = 'login_page.html';
+                return null;
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                const response = await fetch(`${API_BASE}/logout`, {
+                    method: 'POST',
+                    credentials: 'include',
+                });
+
+                if (response.ok) {
+                    window.location.href = 'login_page.html';
+                } else {
+                    alert('Çıkış yapılırken bir hata oluştu.');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Çıkış yapılırken bir hata oluştu.');
+            }
+        }
+        // ==================== MEVCUT KODLARINIZ ====================
+
         // URL'den user ID'sini al
         function getUserIdFromURL() {
             const params = new URLSearchParams(window.location.search);
@@ -272,7 +369,7 @@
 
             if (!userId) {
                 document.getElementById('listingsContainer').innerHTML = 
-                    '<div class="error">Kullanıcı ID bulunamadı. <a href="test_home_page.html">Ana sayfaya dön</a></div>';
+                    '<div class="error">Kullanıcı ID bulunamadı. <a href="home_page.html">Ana sayfaya dön</a></div>';
                 return;
             }
 
@@ -286,19 +383,26 @@
                 const userListings = allListings.filter(l => l.user_id == userId);
                 console.log("Kullanici ilanlarini fetchleme OK");
 
+                                // İlk ilandan kullanıcı bilgilerini al
+                const userResponse = await fetch(`${API_BASE}/users/${userId}`);
+                console.log("USER ID: ", userId);
+                let userInfo = await userResponse.json();
+
+                console.log("Kullanici verilerini cekme OK");
+                console.log(userInfo)
+                // Kullanıcı bilgilerini sidebar'da göster
+                displayUserInfo(userInfo);
+                console.log("Kullanici verilerini goruntuleme OK");
+
                 if (userListings.length === 0) {
                     document.getElementById('listingsContainer').innerHTML = 
                         '<div class="no-results">Bu kullanıcının henüz ilanı bulunmuyor.</div>';
-                    document.getElementById('userName').textContent = 'Kullanıcı';
-                    document.getElementById('userSidebar').innerHTML = 
-                        '<h3>Kullanıcı Bilgileri</h3><div class="no-results" style="padding: 20px;">Bilgi bulunamadı</div>';
                     return;
                 }
 
                 // İlk ilandan kullanıcı bilgilerini al
                 let firstListing = userListings[0];
                 const userName = firstListing.user_name || 'Bilinmeyen Kullanıcı';
-                document.getElementById('userName').textContent = userName;
                 document.getElementById('userStats').textContent = `${userListings.length} İlan`;
                 document.title = `${userName} - İlanları`;
 
@@ -316,24 +420,12 @@
                 );
                 console.log("Ilan detaylarini cekme OK");
 
-                // İlk ilandan kullanıcı bilgilerini al
-                const userResponse = await fetch(`${API_BASE}/users/${userId}`);
-                console.log("USER ID: ", userId);
-                let userInfo = await userResponse.json();
-
-                console.log("Kullanici verilerini cekme OK");
-                console.log(userInfo)
-                // Kullanıcı bilgilerini sidebar'da göster
-                displayUserInfo(userInfo);
-                console.log("Kullanici verilerini goruntuleme OK");
-                
-
                 displayListings(enrichedListings);
                 console.log("Ilanlari goruntuleme OK");
             } catch (err) {
                 console.error(err);
                 document.getElementById('listingsContainer').innerHTML = 
-                    '<div class="error">İlanlar yüklenirken hata oluştu. <a href="test_home_page.html">Ana sayfaya dön</a></div>';
+                    '<div class="error">İlanlar yüklenirken hata oluştu. <a href="home_page.html">Ana sayfaya dön</a></div>';
             }
         }
 
@@ -346,7 +438,7 @@
                 const genres = l.genres || [];
 
                 return `
-                    <a href="test_listing_page.html?id=${l.listing_id}" style="text-decoration: none; color: inherit;">
+                    <a href="listing_page.html?id=${l.listing_id}" style="text-decoration: none; color: inherit;">
                         <div class="listing-card">
                             <div class="listing-image" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;">
                                 ${imageUrl ? '' : 'Görsel Yok'}
@@ -413,7 +505,10 @@
         }
 
         // Sayfa yüklendiğinde çalıştır
-        loadUserListings();
+        window.addEventListener('DOMContentLoaded', async () => {
+            await checkAuth();  // Auth kontrolü
+            loadUserListings();     // Sonra ilanları yükle
+        });
     </script>
 
 </body>

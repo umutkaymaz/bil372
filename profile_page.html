@@ -214,9 +214,8 @@
 <body>
     <div class="header">
         <div class="header-content">
-            <a href="test_home_page.html" class="logo">Buharından</a>
+            <a href="home_page.html" class="logo">Buharından</a>
             <div class="header-actions">
-                <a href="test_home_page.html" class="back-btn">← Ana Sayfa</a>
                 <button class="logout-btn" onclick="handleLogout()">Çıkış Yap</button>
             </div>
         </div>
@@ -241,7 +240,7 @@
 
                 if (!response.ok) {
                     if (response.status === 401) {
-                        window.location.href = 'test_login_page.html';
+                        window.location.href = 'login_page.html';
                         return;
                     }
                     throw new Error('Profil bilgileri yüklenemedi');
@@ -256,7 +255,7 @@
                     <div class="error">
                         <strong>Hata:</strong> ${error.message}
                         <br><br>
-                        <a href="test_login_page.html" class="btn btn-primary" style="display: inline-block; margin-top: 12px;">
+                        <a href="login_page.html" class="btn btn-primary" style="display: inline-block; margin-top: 12px;">
                             Giriş Sayfasına Dön
                         </a>
                     </div>
@@ -300,13 +299,17 @@
                     </div>
 
                     <div class="actions">
-                        <a href="test_home_page.html" class="btn btn-primary">
-                            Ana Sayfaya Git
+                        <a href="user_page.html?id=${user.user_id}" class="btn btn-primary">
+                            İlanlarımı görüntüle
+                        </a>
+                        <a href="edit_profile.html" class="btn btn-secondary">
+                            Profili Düzenle
                         </a>
                         <button class="btn btn-secondary" onclick="window.location.reload()">
                             Yenile
                         </button>
                     </div>
+
                 </div>
             `;
         }
@@ -318,7 +321,7 @@
                     credentials: 'include'
                 });
                 
-                window.location.href = 'test_login_page.html';
+                window.location.href = 'login_page.html';
             } catch (error) {
                 console.error('Çıkış hatası:', error);
                 alert('Çıkış yapılırken bir hata oluştu');

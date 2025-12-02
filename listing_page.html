@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İlan Detayı</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ===== YORUM EKLEME TASARIMI ===== */
+
+        .add-comment-box {
+            background: white;
+            padding: 24px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            margin-top: 24px;
+        }
+
+        .add-comment-box h4 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .add-comment-textarea {
+            width: 100%;
+            height: 120px;
+            resize: vertical;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.5;
+            font-family: inherit;
+            outline: none;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+
+        .add-comment-textarea:focus {
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+        }
+
+        .add-comment-btn {
+            margin-top: 12px;
+            display: inline-block;
+            padding: 10px 20px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .add-comment-btn:hover {
+            background: #1976D2;
+        }
+
+        /* alt boşluk için */
+        .detail-comments {
+            padding-bottom: 50px;
+        }
+
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2196F3;
+            text-decoration: none;
+        }
+
+        .profile-btn {
+            padding: 8px 16px;
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .profile-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .detail-container {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+
+        .detail-header {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 32px;
+            padding: 32px;
+        }
+
+        .detail-image {
+            width: 100%;
+            height: 400px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .detail-main-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 12px;
+        }
+
+        .detail-price {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2196F3;
+            margin-bottom: 20px;
+        }
+
+        .detail-owner-info {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .detail-owner-info h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .detail-owner-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2196F3;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: color 0.2s;
+            user-select: none;
+        }
+
+        .detail-owner-name:hover {
+            color: #1976D2;
+            text-decoration: underline;
+        }
+
+        .detail-owner-city {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 8px;
+        }
+
+        .detail-owner-phone {
+            font-size: 14px;
+            color: #2196F3;
+            font-weight: 500;
+        }
+
+        .detail-description-box {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .detail-description-box h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .detail-description-box p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .detail-genres {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: auto;
+        }
+
+        .detail-genre-tag {
+            background: #e3f2fd;
+            color: #1976D2;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .delete-comment-btn {
+            position: absolute;
+            bottom: 30px;
+            right: 16px;
+
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .delete-comment-btn:hover {
+            background: #d32f2f;
+        }
+
+        .delete-listing-btn {
+            background: #f44336;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            width: fit-content;
+            transition: background 0.2s;
+        }
+
+        .delete-listing-btn:hover {
+            background: #d32f2f;
+        }
+
+        .detail-comments {
+            padding: 32px;
+            border-top: 1px solid #e0e0e0;
+            background: #fafafa;
+        }
+
+        .detail-comments h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .comment-item {
+            background: white;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            border: 1px solid #e0e0e0;
+            position: relative;
+            padding-bottom: 42px;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .comment-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+            padding-right: 80px;
+        }
+
+        .no-comments {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .comment-actions {
+            position: absolute;
+            bottom: 10px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-comment-btn {
+            background: #1976D2;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .edit-comment-btn:hover {
+            background: #0D47A1;
+        }
+
+        .edit-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #bbb;
+            resize: vertical;
+        }
+
+        .edit-actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .save-edit-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .cancel-edit-btn {
+            background: #999;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .edit-listing-btn {
+            background: #FFC107;
+            color: #5a4300;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            width: fit-content;
+            transition: background 0.2s;
+        }
+
+        .edit-listing-btn:hover {
+            background: #ffb300;
+        }
+
+        .detail-condition-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            width: fit-content;
+        }
+
+        /* Renk Paleti */
+        .condition-kusursuz {
+            background: #C8E6C9;
+            color: #2E7D32;
+        }
+
+        .condition-iyi {
+            background: #BBDEFB;
+            color: #1565C0;
+        }
+
+        .condition-orta {
+            background: #FFE082;
+            color: #8D6E00;
+        }
+
+        .condition-yıpranmış {
+            background: #FFCCBC;
+            color: #BF360C;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-box {
+            background: white;
+            width: 90%;
+            max-width: 420px;
+            padding: 24px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: modalFade 0.2s ease;
+        }
+
+        @keyframes modalFade {
+            from {opacity: 0; transform: scale(0.95);}
+            to {opacity: 1; transform: scale(1);}
+        }
+
+        .modal-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-cancel-btn {
+            background: #eee;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .modal-cancel-btn:hover {
+            background: #ddd;
+        }
+
+        .modal-delete-btn {
+            background: #f44336;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .modal-delete-btn:hover {
+            background: #d32f2f;
+        }
+
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+
+        .error {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .detail-header {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-image {
+                height: 300px;
+            }
+
+
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <a href="home_page.html" class="logo">Buharından</a>
+            <div class="header-actions">
+                <button class="profile-btn" onclick="window.location.href='profile_page.html'">Profilim</button>
+                <button class="logout-btn" onclick="handleLogout()">Çıkış Yap</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="detailContent" class="detail-container">
+            <div class="loading">Yükleniyor...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+
+        // ==================== AUTH FUNCTIONS ====================
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_BASE}/me`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+                if (!response.ok) {
+                    window.location.href = 'login_page.html';
+                    return null;
+                }
+
+                const userData = await response.json();
+                return userData;
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = 'login_page.html';
+                return null;
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                const response = await fetch(`${API_BASE}/logout`, {
+                    method: 'POST',
+                    credentials: 'include',
+                });
+
+                if (response.ok) {
+                    window.location.href = 'login_page.html';
+                } else {
+                    alert('Çıkış yapılırken bir hata oluştu.');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Çıkış yapılırken bir hata oluştu.');
+            }
+        }
+
+        // ==================== MEVCUT KODLARINIZ ====================
+
+        // URL'den listing ID'sini al
+        function getListingIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // İlan detaylarını yükle
+        async function loadListingDetail() {
+            const listingId = getListingIdFromURL();
+
+            if (!listingId) {
+                document.getElementById('detailContent').innerHTML = 
+                    '<div class="error">İlan ID bulunamadı. <a href="home_page.html">Ana sayfaya dön</a></div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/listings/${listingId}`);
+                
+                if (!response.ok) {
+                    throw new Error('İlan bulunamadı');
+                }
+
+                const detail = await response.json();
+                displayListingDetail(detail);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('detailContent').innerHTML = 
+                    '<div class="error">İlan yüklenirken hata oluştu. <a href="home_page.html">Ana sayfaya dön</a></div>';
+            }
+        }
+
+        // İlan detaylarını göster
+        function displayListingDetail(detail) {
+            const imageUrl = detail.listing_imagepath;
+            const genres = detail.genres || [];
+            const comments = detail.comments || [];
+
+            // Adres bilgilerini birleştir
+            let fullAddress = '';
+            if (detail.user_city && detail.user_restofaddress) {
+                fullAddress = `${detail.user_city}, ${detail.user_restofaddress}`;
+            } else if (detail.user_city) {
+                fullAddress = detail.user_city;
+            } else if (detail.user_restofaddress) {
+                fullAddress = detail.user_restofaddress;
+            } else {
+                fullAddress = 'Adres belirtilmemiş';
+            }
+
+            // Yorumları oluştur
+            const commentsHtml = comments.length > 0 
+                ? comments.map(c => `
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <span class="comment-author">${c.user_name || 'Anonim'}</span>
+                            <span class="comment-date">${c.comment_date ? new Date(c.comment_date).toLocaleDateString('tr-TR') : ''}</span>
+
+                            ${
+                                (window.currentUser && window.currentUser.user_id === c.comment_ownerid)
+                                ? `<div class="comment-actions">
+                                    <button class="edit-comment-btn" onclick="enterEditMode(${c.comment_id})">Düzenle</button>
+                                    <button class="delete-comment-btn" onclick="deleteComment(${c.comment_id})">Sil</button>
+                                </div>
+                            `
+                                : ""
+                            }
+                        </div>
+
+                        <div class="comment-text" id="comment-text-${c.comment_id}">${c.comment_content}</div>
+                    </div>
+                `).join('')
+                : '<div class="no-comments">Henüz yorum yapılmamış.</div>';
+
+
+            // Sayfanın title'ını güncelle
+            document.title = `${detail.listing_name} - İlan Detayı`;
+
+            // İçeriği oluştur
+            document.getElementById('detailContent').innerHTML = `
+                <div class="detail-header">
+                    <div class="detail-image" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;">
+                        ${imageUrl ? '' : 'Görsel Yok'}
+                    </div>
+
+                    <div class="detail-main-info">
+                        <div class="detail-title">${detail.listing_name}</div>
+                        <div class="detail-condition-badge ${
+                            detail.listing_condition === 'Kusursuz' ? 'condition-kusursuz' :
+                            detail.listing_condition === 'İyi' ? 'condition-iyi' :
+                            detail.listing_condition === 'Orta' ? 'condition-orta' :
+                            'condition-yıpranmış'
+                        }"> 
+                            ${detail.listing_condition}
+                        </div>
+                        <div class="detail-price">${detail.listing_price.toFixed(2)} ₺</div>
+                        <!-- ⭐ SAHİPSE İLAN SİLME BUTONU ⭐ -->
+                        ${window.currentUser && window.currentUser.user_id === detail.listing_ownerid
+                            ? `<button class="edit-listing-btn" onclick="goToEditPage('${detail.listing_id}')">İlanı Düzenle</button>
+                            <button class="delete-listing-btn" onclick="openDeleteModal()">İlanı Sil</button>`
+                            : ""
+                        }
+
+                        <div class="detail-owner-info">
+                            <h4>Satıcı Bilgileri</h4>
+                            <div class="detail-owner-name" onclick="goToUserPage('${detail.user_id}')">${detail.user_name || 'Bilinmeyen Kullanıcı'}</div>
+                            <div class="detail-owner-city">${fullAddress}</div>
+                            ${detail.user_phonenumber ? `<div class="detail-owner-phone">${detail.user_phonenumber}</div>` : ''}
+                        </div>
+
+                        ${detail.listing_desc ? `
+                        <div class="detail-description-box">
+                            <h4>Açıklama</h4>
+                            <p>${detail.listing_desc}</p>
+                        </div>
+                        ` : ''}
+
+                        <div class="detail-genres">
+                            ${genres.map(g => `<span class="detail-genre-tag">${g}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-comments">
+                    <h3>Yorumlar (${comments.length})</h3>
+                    ${commentsHtml}
+                </div>
+                <!-- YORUM EKLEME BÖLÜMÜ (sadece görsel) -->
+                <div class="add-comment-box">
+                    <h4>Yorum Ekle</h4>
+                    <textarea 
+                        class="add-comment-textarea" 
+                        placeholder="Bu ilan hakkında görüşünüzü yazın..."
+                        id="newCommentText"
+                    ></textarea>
+
+                    <!-- Şimdilik buton görsel amaçlı, hiçbir fonksiyona bağlı değil -->
+                    <button class="add-comment-btn" onclick="submitComment()">Gönder</button>
+
+                </div>
+
+            `;
+        }
+        async function submitComment() {
+            const content = document.getElementById("newCommentText").value.trim();
+            const listingId = getListingIdFromURL();
+
+            if (content.length === 0) {
+                alert("Lütfen yorum yazın.");
+                return;
+            }
+
+            // Tarih formatı: YYYY-MM-DD
+            const now = new Date();
+            const formattedDate = now.toISOString().split("T")[0];
+
+            // Önce giriş yapan kullanıcıyı al (owner id için)
+            const me = await checkAuth();
+            if (!me) return;
+
+            const payload = {
+                comment_content: content,
+                comment_date: formattedDate,
+                comment_ownerid: me.user_id,
+                comment_listingid: listingId
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/comments/post_comment`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error("Yorum gönderilemedi");
+                }
+
+                // Yorum kutusunu temizle
+                document.getElementById("newCommentText").value = "";
+
+                // Yorumları yeniden yükle
+                loadListingDetail();
+
+            } catch (err) {
+                console.error(err);
+                alert("Yorum gönderilirken bir hata oluştu.");
+            }
+        }
+
+        async function deleteComment(commentId) {
+            if (!confirm("Yorumu silmek istediğine emin misin?")) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/comments/delete_comment/${commentId}`, {
+                    method: "DELETE",
+                    credentials: "include"
+                });
+
+                if (!response.ok) {
+                    throw new Error("Silinemedi");
+                }
+
+                loadListingDetail(); // yorumları yeniler
+            } catch (err) {
+                console.error(err);
+                alert("Yorum silinirken bir hata oluştu.");
+            }
+        }
+
+        function openDeleteModal() {
+            document.getElementById("deleteModal").style.display = "flex";
+        }
+
+        function closeDeleteModal() {
+            document.getElementById("deleteModal").style.display = "none";
+        }
+
+        async function confirmDeleteListing() {
+            const listingId = getListingIdFromURL();
+
+            try {
+                const response = await fetch(`${API_BASE}/listings/delete/${listingId}`, {
+                    method: "DELETE",
+                    credentials: "include"
+                });
+
+                if (!response.ok) {
+                    throw new Error("Silinemedi");
+                }
+
+                // Modal kapat
+                closeDeleteModal();
+
+                // Ana sayfaya yönlendir
+                window.location.href = "home_page.html";
+
+            } catch (err) {
+                console.error(err);
+                alert("İlan silinirken bir hata oluştu.");
+            }
+        }
+
+        function enterEditMode(commentId) {
+            const textEl = document.getElementById(`comment-text-${commentId}`);
+            const oldText = textEl.innerText;
+
+            textEl.innerHTML = `
+                <textarea id="editArea-${commentId}" class="edit-textarea">${oldText}</textarea>
+                <div class="edit-actions">
+                    <button class="save-edit-btn" onclick="saveCommentEdit(${commentId})">Kaydet</button>
+                    <button class="cancel-edit-btn" onclick="cancelCommentEdit(${commentId}, \`${oldText}\`)">İptal</button>
+                </div>
+            `;
+        }
+
+        async function saveCommentEdit(commentId) {
+            const newText = document.getElementById(`editArea-${commentId}`).value.trim();
+
+            if (!newText.length) {
+                alert("Yorum boş olamaz.");
+                return;
+            }
+
+            const payload = {
+                comment_content: newText,
+                comment_date: "", // kullanılmıyor
+                comment_ownerid: "",
+                comment_listingid: ""
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/comments/update/${commentId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error();
+
+                loadListingDetail(); // yenile
+
+            } catch (err) {
+                alert("Yorum düzenlenirken bir hata oluştu.");
+            }
+        }
+
+        function cancelCommentEdit(commentId, originalText) {
+            const textEl = document.getElementById(`comment-text-${commentId}`);
+            textEl.innerText = originalText;
+        }
+
+        function goToEditPage(id) {
+            window.location.href = `edit_listing.html?id=${id}`;
+        }
+
+        // ==================== SAYFA YÜKLENİRKEN AUTH KONTROL ====================
+        window.addEventListener('DOMContentLoaded', async () => {
+            window.currentUser = await checkAuth();  // Auth kontrolü
+            console.log(window.currentUser);
+            loadListingDetail();     // Sonra ilanları yükle
+        });
+
+        // Kullanıcı sayfasına git
+        function goToUserPage(userId) {
+            window.location.href = `user_page.html?id=${userId}`;
+        }
+    </script>
+
+    <!-- DELETE LISTING MODAL -->
+    <div id="deleteModal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <h3>İlanı Sil</h3>
+            <p>Bu ilanı silmek istediğine emin misin? Bu işlem geri alınamaz.</p>
+
+            <div class="modal-actions">
+                <button class="modal-cancel-btn" onclick="closeDeleteModal()">Vazgeç</button>
+                <button class="modal-delete-btn" onclick="confirmDeleteListing()">Evet, Sil</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

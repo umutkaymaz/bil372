@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İlan Düzenle - Buharından</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2196F3;
+            text-decoration: none;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .profile-btn, .logout-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .profile-btn {
+            background: white;
+            border: 1px solid #ddd;
+        }
+        .logout-btn {
+            background: #f44336;
+            border: none;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 32px auto;
+            padding: 0 16px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            border: 1px solid #ddd;
+        }
+        .card-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .card-subtitle {
+            color: #777;
+            font-size: 13px;
+            margin-bottom: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        .form-group textarea { min-height: 90px; resize: vertical; }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .cancel-btn {
+            padding: 10px 16px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .submit-btn {
+            padding: 10px 20px;
+            background: #2196F3;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+        }
+
+        #listingGenres {
+            min-height: 90px;
+            max-height: 160px;
+        }
+
+        .current-image {
+            margin-top: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-content">
+            <a href="home_page.html" class="logo">Buharından</a>
+            <div class="header-actions">
+                <button class="profile-btn" onclick="window.location.href='profile_page.html'">Profilim</button>
+                <button class="logout-btn" onclick="handleLogout()">Çıkış Yap</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-title">İlanı Düzenle</div>
+            <div class="card-subtitle">Bu sayfadan ilan bilgilerini güncelleyebilirsin.</div>
+
+            <form id="editForm" onsubmit="submitEdit(event)">
+                <div class="form-group">
+                    <label>İlan Başlığı</label>
+                    <input type="text" id="listingName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Fiyat (₺)</label>
+                    <input type="number" id="listingPrice" min="0" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Durum</label>
+                    <select id="listingCondition" required>
+                        <option value="Kusursuz">Kusursuz</option>
+                        <option value="İyi">İyi</option>
+                        <option value="Orta">Orta</option>
+                        <option value="Yıpranmış">Yıpranmış</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Mevcut Görsel</label>
+                    <img id="currentImage" class="current-image" src="">
+                </div>
+
+                <div class="form-group">
+                    <label>Yeni Görsel (opsiyonel)</label>
+                    <input type="file" id="newImage" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label>Türler (Çoklu Seçim)</label>
+                    <select id="listingGenres" multiple></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Açıklama</label>
+                    <textarea id="listingDesc"></textarea>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="cancel-btn" onclick="goBack()">İptal</button>
+                    <button type="submit" class="submit-btn">Kaydet</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "http://127.0.0.1:8000";
+        let currentListingId = null;
+        let currentUserId = null;
+
+        function getListingIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        async function checkAuth() {
+            const res = await fetch(`${API_BASE}/me`, { credentials: "include" });
+            if (!res.ok) window.location.href = "login_page.html";
+            const user = await res.json();
+            currentUserId = user.user_id;
+        }
+
+        async function loadGenres(selectedGenreNames) {
+            const res = await fetch(`${API_BASE}/genres`);
+            const genres = await res.json();
+            const select = document.getElementById("listingGenres");
+
+            genres.forEach(g => {
+                const op = document.createElement("option");
+                op.value = g.genre_id;
+                op.textContent = g.genre_name;
+
+                if (selectedGenreNames.includes(g.genre_name)) {
+                    op.selected = true;
+                }
+
+                select.appendChild(op);
+            });
+        }
+
+        async function loadListing() {
+            currentListingId = getListingIdFromURL();
+            const res = await fetch(`${API_BASE}/listings/${currentListingId}`);
+            const data = await res.json();
+
+            if (data.listing_ownerid !== currentUserId) {
+                alert("Bu ilanı düzenlemeye yetkin yok.");
+                window.location.href = "home_page.html";
+                return;
+            }
+
+            document.getElementById("listingName").value = data.listing_name;
+            document.getElementById("listingPrice").value = data.listing_price;
+            document.getElementById("listingCondition").value = data.listing_condition;
+            document.getElementById("listingDesc").value = data.listing_desc || "";
+
+            if (data.listing_imagepath) {
+                document.getElementById("currentImage").src = data.listing_imagepath;
+            } else {
+                document.getElementById("currentImage").src = "/images/default.png";
+            }
+
+            await loadGenres(data.genres ?? []);
+        }
+
+        function goBack() {
+            window.location.href = `listing_page.html?id=${currentListingId}`;
+        }
+
+        async function submitEdit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById("listingName").value.trim();
+            const price = document.getElementById("listingPrice").value;
+            const cond = document.getElementById("listingCondition").value;
+            const desc = document.getElementById("listingDesc").value.trim();
+
+            const genreSelect = document.getElementById("listingGenres");
+            const selectedGenreIds = Array.from(genreSelect.selectedOptions).map(op => parseInt(op.value));
+
+            // 1) İlan bilgilerini güncelle
+            const updatePayload = {
+                listing_name: name,
+                listing_price: price,
+                listing_condition: cond,
+                listing_desc: desc,
+                genres: selectedGenreIds
+            };
+
+            await fetch(`${API_BASE}/listings/${currentListingId}/update`, {
+                method: "PUT",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatePayload)
+            });
+
+            // 2) Yeni resim varsa yükle
+            const fileInput = document.getElementById("newImage");
+            if (fileInput.files.length > 0) {
+                const formData = new FormData();
+                formData.append("file", fileInput.files[0]);
+
+                await fetch(`${API_BASE}/listings/${currentListingId}/upload_image`, {
+                    method: "POST",
+                    credentials: "include",
+                    body: formData
+                });
+            }
+
+            // 3) geri dön
+            window.location.href = `listing_page.html?id=${currentListingId}`;
+        }
+
+        async function handleLogout() {
+            await fetch(`${API_BASE}/logout`, { method: "POST", credentials: "include" });
+            window.location.href = "login_page.html";
+        }
+
+        window.addEventListener("DOMContentLoaded", async () => {
+            await checkAuth();
+            await loadListing();
+        });
+    </script>
+
+</body>
+</html>
