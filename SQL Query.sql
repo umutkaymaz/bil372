@@ -1,4 +1,3 @@
-drop database buharindan;
 CREATE DATABASE buharindan;
 
 USE buharindan;
