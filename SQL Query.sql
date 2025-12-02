@@ -1,3 +1,4 @@
+DROP DATABASE buharindan;
 CREATE DATABASE buharindan;
 
 USE buharindan;
@@ -68,16 +69,16 @@ INSERT INTO genres (genre_name) VALUES
 INSERT INTO users_table (
     user_id, user_name, user_city, user_restofaddress, user_phonenumber, user_passwordhashes
 ) VALUES
-('davidgilmour70',   'David Gilmour',    'İstanbul',    'Kadıköy, Moda Mahallesi',      '05510000001', 'hash_david'),
-('thomyorke68',      'Thom Yorke',       'Ankara',      'Çankaya, Bahçelievler',        '05510000002', 'hash_thom'),
-('kurtcobain67',     'Kurt Cobain',      'İzmir',       'Karşıyaka, Bostanlı',          '05510000003', 'hash_kurt'),
-('freddiemercury46', 'Freddie Mercury',  'Bursa',       'Nilüfer, FSM Bulvarı',         '05510000004', 'hash_freddie'),
-('jameshetfield63',  'James Hetfield',   'Antalya',     'Konyaaltı, Liman Mah.',        '05510000005', 'hash_james'),
-('haykocepkin81',    'Hayko Cepkin',     'Eskişehir',   'Tepebaşı, Üniversite Cad.',    '05510000006', 'hash_hayko'),
-('barismanco1923',   'Barış Manço',      'Trabzon',     'Ortahisar, Meydan Mah.',       '05510000007', 'hash_baris'),
-('cemkaraca1945',    'Cem Karaca',       'Gaziantep',   'Şahinbey, Çarşı İçleri',       '05510000008', 'hash_cem'),
-('ozzyosbourne48',   'Ozzy Osbourne',    'Kayseri',     'Melikgazi, Merkez Mah.',       '05510000009', 'hash_ozzy'),
-('kirkhammett62',    'Kirk Hammett',     'Diyarbakır',  'Kayapınar, Bulvar Cad.',       '05510000010', 'hash_kirk');
+('davidgilmour70',   'David Gilmour',    'İstanbul',    'Kadıköy, Moda Mahallesi',      '05510000001', '$2b$12$.xe3mfDIJLV9e34n0Y5jiO.sjjfBLuiP2T94oUdbEuXNrXoQdRVLS'),
+('thomyorke68',      'Thom Yorke',       'Ankara',      'Çankaya, Bahçelievler',        '05510000002', '$2b$12$.xe3mfDIJLV9e34n0Y5jiO.sjjfBLuiP2T94oUdbEuXNrXoQdRVLS'),
+('kurtcobain67',     'Kurt Cobain',      'İzmir',       'Karşıyaka, Bostanlı',          '05510000003', '$2b$12$.xe3mfDIJLV9e34n0Y5jiO.sjjfBLuiP2T94oUdbEuXNrXoQdRVLS'),
+('freddiemercury46', 'Freddie Mercury',  'Bursa',       'Nilüfer, FSM Bulvarı',         '05510000004', '$2b$12$.xe3mfDIJLV9e34n0Y5jiO.sjjfBLuiP2T94oUdbEuXNrXoQdRVLS'),
+('jameshetfield63',  'James Hetfield',   'Antalya',     'Konyaaltı, Liman Mah.',        '05510000005', '$2b$12$.xe3mfDIJLV9e34n0Y5jiO.sjjfBLuiP2T94oUdbEuXNrXoQdRVLS'),
+('haykocepkin81',    'Hayko Cepkin',     'Eskişehir',   'Tepebaşı, Üniversite Cad.',    '05510000006', '$2b$12$.xe3mfDIJLV9e34n0Y5jiO.sjjfBLuiP2T94oUdbEuXNrXoQdRVLS'),
+('barismanco1923',   'Barış Manço',      'Trabzon',     'Ortahisar, Meydan Mah.',       '05510000007', '$2b$12$.xe3mfDIJLV9e34n0Y5jiO.sjjfBLuiP2T94oUdbEuXNrXoQdRVLS'),
+('cemkaraca1945',    'Cem Karaca',       'Gaziantep',   'Şahinbey, Çarşı İçleri',       '05510000008', '$2b$12$.xe3mfDIJLV9e34n0Y5jiO.sjjfBLuiP2T94oUdbEuXNrXoQdRVLS'),
+('ozzyosbourne48',   'Ozzy Osbourne',    'Kayseri',     'Melikgazi, Merkez Mah.',       '05510000009', '$2b$12$.xe3mfDIJLV9e34n0Y5jiO.sjjfBLuiP2T94oUdbEuXNrXoQdRVLS'),
+('kirkhammett62',    'Kirk Hammett',     'Diyarbakır',  'Kayapınar, Bulvar Cad.',       '05510000010', '$2b$12$.xe3mfDIJLV9e34n0Y5jiO.sjjfBLuiP2T94oUdbEuXNrXoQdRVLS');
 
 -- 20 İLAN (listing_imagepath = NULL)
 INSERT INTO listings_table (
