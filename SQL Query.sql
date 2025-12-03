@@ -160,3 +160,17 @@ INSERT INTO comments_table (
 ('Hikaye odaklı oyun seviyorum, pişman eder mi?',                     '2024-05-06', 'barismanco1923',   19),
 
 ('Bu fiyata kaçırılmaz gibi, hala satılık mı?',                       '2024-11-11', 'davidgilmour70',   20);
+
+CREATE OR REPLACE VIEW user_listing_genre_view AS
+SELECT 
+    l.listing_id,
+    l.listing_name,
+    l.listing_price,
+    l.listing_condition,
+    u.user_name AS seller_name,
+    u.user_city,
+    g.genre_name
+FROM listings_table l
+JOIN users_table u ON l.listing_ownerid = u.user_id
+JOIN listing_genres lg ON l.listing_id = lg.listing_id
+JOIN genres g ON lg.genre_id = g.genre_id;
